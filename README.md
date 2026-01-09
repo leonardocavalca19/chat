@@ -1,4 +1,4 @@
-# 💬 WhatsNode - Real-time Material Chat
+# 💬 WhatsNode
 
 Un'applicazione di messaggistica istantanea multiutente realizzata in **Node.js**.
 Il progetto combina la potenza delle **WebSocket** per la comunicazione in tempo reale con un'interfaccia moderna basata su **Material Design 3** (Material You), realizzata interamente con CSS3 nativo e Variabili CSS.
