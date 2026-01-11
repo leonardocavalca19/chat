@@ -17,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/leonardocavalca19/chat/issues"
   },
-  "homepage": "https://github.com/leonardocavalca19/chat#readme"
+  "homepage": "https://github.com/leonardocavalca19/chat#readme",
+  "dependencies": {
+    "socket.io": "^4.8.3",
+    "sqlite3": "^5.1.7"
+  }
 }

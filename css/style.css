@@ -92,3 +92,8 @@ button:hover {
 button:active {
     transform: scale(0.98);
 }
+#error {
+    color: var(--md-sys-color-error);
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
