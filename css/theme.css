@@ -29,6 +29,10 @@
   --md-sys-color-inverse-surface: rgb(43 50 48);
   --md-sys-color-inverse-on-surface: rgb(236 242 239);
   --md-sys-color-inverse-primary: rgb(130 213 200);
+  --md-sys-color-success: #006e1c;
+  --md-sys-color-on-success: #ffffff;
+  --md-sys-color-success-container: #94f990;
+  --md-sys-color-on-success-container: #002204;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -63,5 +67,9 @@
     --md-sys-color-inverse-surface: rgb(221 228 225);
     --md-sys-color-inverse-on-surface: rgb(43 50 48);
     --md-sys-color-inverse-primary: rgb(0 106 96);
+    --md-sys-color-success: #78dc77;
+    --md-sys-color-on-success: #00390a;
+    --md-sys-color-success-container: #005313;
+    --md-sys-color-on-success-container: #94f990;
   }
 }

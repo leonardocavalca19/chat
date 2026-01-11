@@ -1,8 +1,6 @@
 const http = require('http');
 const path = require('path');
 const { readFile } = require('fs').promises;
-const fs = require('fs');
-const url = require('url');
 const { Server } = require("socket.io");
 const db = require('./database');
 
@@ -55,9 +53,9 @@ io.on('connection', (socket) => {
     console.log('Nuovo client connesso:', socket.id);
 
     socket.on('register', (data) => {
-        const sql = "INSERT INTO users (telefono, password) VALUES (?, ?)";
+        const sql = "INSERT INTO users (telefono,nome,password) VALUES (?, ?, ?)";
 
-        db.run(sql, [normalizzaTelefono(data.telefono), data.password], function (err) {
+        db.run(sql, [normalizzaTelefono(data.telefono), data.nome, data.password], function (err) {
             if (err) {
                 if (err.message.includes('UNIQUE')) {
                     socket.emit('auth-error', 'Numero già registrato!');

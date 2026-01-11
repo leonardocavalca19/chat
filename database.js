@@ -15,6 +15,7 @@ function creatabella() {
     const sql = `
         CREATE TABLE IF NOT EXISTS users (
             telefono INTEGER PRIMARY KEY,
+            nome TEXT,
             password TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
