@@ -3,6 +3,7 @@ const path = require('path');
 const { readFile } = require('fs').promises;
 const { Server } = require("socket.io");
 const db = require('./database');
+const bcrypt = require('bcrypt');
 
 const hostname = '127.0.0.1';
 const port = 3000;
@@ -52,10 +53,13 @@ let utentiOnline = {};
 io.on('connection', (socket) => {
     console.log('Nuovo client connesso:', socket.id);
 
-    socket.on('register', (data) => {
+    socket.on('register', async (data) => {
         const sql = "INSERT INTO users (telefono,nome,password) VALUES (?, ?, ?)";
-
-        db.run(sql, [normalizzaTelefono(data.telefono), data.nome, data.password], function (err) {
+        async function hashpassword(password) {
+            return await bcrypt.hash(password, 10);
+        }
+        password = await hashpassword(data.password)
+        db.run(sql, [normalizzaTelefono(data.telefono), data.nome, password], function (err) {
             if (err) {
                 if (err.message.includes('UNIQUE')) {
                     socket.emit('auth-error', 'Numero già registrato!');
@@ -69,20 +73,29 @@ io.on('connection', (socket) => {
             }
         });
     });
-    socket.on('login', (data) => {
-        const sql = "SELECT * FROM users WHERE telefono = ? AND password = ?";
+    socket.on('login', async (data) => {
+        const sql = "SELECT * FROM users WHERE telefono = ?";
 
-        db.get(sql, [normalizzaTelefono(data.telefono), data.password], (err, row) => {
+        db.get(sql, [normalizzaTelefono(data.telefono)], async (err, row) => {
             if (err) {
                 socket.emit('auth-error', 'Errore database');
                 return;
             }
+            if (!row) {
+                socket.emit('auth-error', 'Utente non registrato.');
+                return;
+            }
             if (row) {
-                utentiOnline[socket.id] = row.telefono;
-                socket.emit('login-success', row.telefono);
+                if (await bcrypt.compare(data.password, row.password)) {
+                    utentiOnline[socket.id] = row.telefono;
+                    socket.emit('login-success', row.telefono);
+                    socket.broadcast.emit('user-connected', row.telefono);
+                    io.emit('update-user-list', Object.values(utentiOnline));
+                }
+                else {
+                    socket.emit('auth-error', 'Dati errati.');
+                }
 
-                socket.broadcast.emit('user-connected', row.telefono);
-                io.emit('update-user-list', Object.values(utentiOnline));
             } else {
                 socket.emit('auth-error', 'Dati errati.');
             }
