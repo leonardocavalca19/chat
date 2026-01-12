@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('register', { telefono, nome, password });
     });
     socket.on('register-success', () => {
-        alert('Registrazione avvenuta con successo! Ora puoi effettuare il login.');
+        window.location.replace('/public/chat.html');
     });
     socket.on('auth-error', (messaggioErrore) => {
         document.getElementById('error').textContent = messaggioErrore;
