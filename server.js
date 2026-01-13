@@ -224,6 +224,14 @@ io.on('connection', (socket) => {
         }
     });
 
+    db.all("SELECT * FROM users", [], (err, row) => {
+        if(err) console.err("Errore recupero dati", err.message);
+        else
+        {
+            
+        }
+    });
+
 });
 server.listen(port, hostname, function () {
 
