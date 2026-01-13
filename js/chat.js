@@ -52,9 +52,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
             const avatarSrc = utente.avatar ? `/${utente.avatar}` : '/avatar_default.jpg';
             div.innerHTML += `
             <div class="chat-item" data-id="${utente.telefono}">
-                <div class="chat-avatar">
-                    <img class="profile-pic" src="${avatarSrc}" onerror="this.src='/avatar_default.jpg'">
-                </div>
+                <div class="chat-avatar"><img class="profile-pic" src="${avatarSrc}" onerror="this.src='/avatar_default.jpg'"></div>
                 <div class="chat-item-texts">
                     <p class="chat-name">${utente.nickname}</p>
                     <p class="chat-message">Clicca per chattare</p>
