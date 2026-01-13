@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const tokenEsistente = localStorage.getItem('chatToken');
+    if (tokenEsistente) {
+        window.location.replace('/public/chat.html');
+        return;
+    }
     const socket = io();
     document.getElementById('btnregistrati').addEventListener('click', (e) => {
         e.preventDefault();
@@ -19,7 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('login', { telefono, password });
     });
 
-    socket.on('login-success', (telefonoUtente) => {
+    socket.on('login-success', (data) => {
+        localStorage.setItem('chatToken', data.token);
         window.location.replace('/public/chat.html');
     });
 

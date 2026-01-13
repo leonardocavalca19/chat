@@ -5,6 +5,7 @@ const fs = require('fs');
 const { Server } = require("socket.io");
 const db = require('./database');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const hostname = '127.0.0.1';
 const port = 3000;
@@ -72,6 +73,7 @@ const io = new Server(server, {
     maxHttpBufferSize: 5 * 1024 * 1024
 });
 let utentiOnline = {};
+let sessioni = {};
 const tentativiLogin = {};
 io.on('connection', (socket) => {
     console.log('Nuovo client connesso:', socket.id);
@@ -104,8 +106,22 @@ io.on('connection', (socket) => {
                     console.error(err);
                 }
             } else {
-                socket.emit('register-success');
                 console.log(`Utente registrato: ${normalizzaTelefono(data.telefono)}`);
+                const token = crypto.randomBytes(16).toString('hex');
+                const nuovoUtente = {
+                    telefono: normalizzaTelefono(data.telefono),
+                    nickname: data.nome,
+                    avatar: avatar
+                };
+                sessioni[token] = nuovoUtente;
+                utentiOnline[socket.id] = nuovoUtente;
+                socket.emit('register-success', {
+                    token: token,
+                    telefono: nuovoUtente.telefono,
+                    nickname: nuovoUtente.nickname,
+                    avatar: nuovoUtente.avatar
+                });
+                aggiornalista();
             }
         });
     });
@@ -146,7 +162,8 @@ io.on('connection', (socket) => {
 
                 if (passwordCorretta) {
                     if (tentativiLogin[ip]) delete tentativiLogin[ip];
-
+                    const token = crypto.randomBytes(16).toString('hex');
+                    sessioni[token] = row;
                     utentiOnline[socket.id] = {
                         telefono: row.telefono,
                         nickname: row.nickname,
@@ -155,8 +172,10 @@ io.on('connection', (socket) => {
                     socket.emit('login-success', {
                         telefono: row.telefono,
                         nickname: row.nickname,
-                        avatar: row.avatar
+                        avatar: row.avatar,
+                        token: token
                     });
+                    aggiornalista();
                     socket.broadcast.emit('user-connected', row.telefono);
                     io.emit('update-user-list', Object.values(utentiOnline));
                 }
@@ -173,15 +192,35 @@ io.on('connection', (socket) => {
             }
         });
     });
+    socket.on('authenticate', (token) => {
+        const utente = sessioni[token];
+
+        if (utente) {
+            utentiOnline[socket.id] = {
+                telefono: utente.telefono,
+                nickname: utente.nickname,
+                avatar: utente.avatar
+            };
+            
+            socket.emit('auth-success', utente);
+            console.log(`Utente riconnesso con token: ${utente.telefono}`);
+        } else {
+            socket.emit('auth-error', 'Sessione scaduta');
+        }
+    });
     socket.on('upload-avatar', (fileData) => {
         const mittente = utentiOnline[socket.id];
-        if (!mittente) return;
+        if (!mittente) {
+            socket.emit('upload-error', 'Sessione scaduta o non valida. Effettua di nuovo il login.');
+            return;
+        }
         const estensione = path.extname(fileData.nome).toLowerCase();
         if (!['.png', '.jpg', '.jpeg', '.gif'].includes(estensione)) {
             socket.emit('upload-error', 'Formato non valido! Solo immagini.');
             return;
         }
-        const nuovoNomeFile = `avatar_${mittente.telefono.replace('+', '')}${estensione}`;
+        const stringa = String(mittente.telefono);
+        const nuovoNomeFile = `avatar_${stringa.replace('+', '')}${estensione}`;
         const percorsoSalvataggio = path.join(__dirname, 'img', 'avatars', nuovoNomeFile);
 
         fs.writeFile(percorsoSalvataggio, fileData.buffer, (err) => {
@@ -200,7 +239,7 @@ io.on('connection', (socket) => {
                     utentiOnline[socket.id].avatar = nuovoNomeFile;
                 }
                 socket.emit('upload-success', nuovoNomeFile);
-                io.emit('update-user-list', Object.values(utentiOnline));
+                aggiornalista();
             });
         });
     });
@@ -220,24 +259,26 @@ io.on('connection', (socket) => {
         const mittente = utentiOnline[socket.id];
         if (mittente) {
             delete utentiOnline[socket.id];
-            io.emit('update-user-list', Object.values(utentiOnline));
         }
-    });
-
-    db.all("SELECT * FROM users", [], (err, row) => {
-        if(err) console.err("Errore recupero dati", err.message);
-        else
-        {
-            
-        }
-    });
+    })
 
 });
-server.listen(port, hostname, function () {
-
-    console.log(`Server running at http://${hostname}:${port}/`);
-
-});
+function aggiornalista() {
+    const sql = "SELECT telefono, nome, avatar FROM users";
+    
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error("Errore recupero utenti:", err);
+            return;
+        }
+        const listaPerClient = rows.map(row => ({
+            telefono: row.telefono,
+            nickname: row.nome,
+            avatar: row.avatar
+        }));
+        io.emit('update-user-list', listaPerClient);
+    });
+}
 function normalizzaTelefono(numero) {
     if (!numero || typeof numero !== 'string') return "";
     let numpulito = numero.replace(/[^0-9+]/g, '');
@@ -252,3 +293,8 @@ function puliziamessaggio(text) {
     if (!text) return text;
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
+server.listen(port, hostname, function () {
+
+    console.log(`Server running at http://${hostname}:${port}/`);
+
+});

@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html lang="it">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../css/style.css">
-        <link rel="stylesheet" href="../css/theme.css">
-        <script src="../js/resize.js"></script>
-        <script src="../js/chat.js"></script>
-        <title>Chat - WhatsNode</title>
-    </head>
-    <body class="chat-container-body" id="chat-container">
-        <div class="chat-list-container" id="chat-list">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <script src="../js/resize.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/chat.js"></script>
+    <title>Chat - WhatsNode</title>
+</head>
+
+<body class="chat-container-body" id="chat-container">
+    <div class="chat-list-container" id="chat-list">
+        <div id="top">
             <h2>Chat</h2>
-            <div class="chat-items-container">
-                <div class="chat-item" id="chat-item">
-                    <div class="chat-avatar"><img class="profile-pic" id="profile-pic" src="../img/avatars/avatar_default.jpg"></div>
-                    <div class="chat-item-texts">
-                        <p class="chat-name" id="chat-name">aadwd</p>
-                        <p class="chat-message" id="chat-message"></p>
-                    </div>
+            <button onclick='window.location.href="/public/avatar.html"' id="avatar-btn">Cambia Avatar</button>
+        </div>
+        <div class="chat-items-container" id="chat-items-container">
+            <div class="chat-item" id="chat-item">
+                <div class="chat-avatar"><img class="profile-pic" id="profile-pic"
+                        src="../img/avatars/avatar_default.jpg"></div>
+                <div class="chat-item-texts">
+                    <p class="chat-name" id="chat-name">aadwd</p>
+                    <p class="chat-message" id="chat-message"></p>
                 </div>
             </div>
         </div>
-        <div class="chat-divider" id="chat-divider"></div>
-        <div class="chat-container" id="chat">
-            <div class="def-screen" id="def-screen">
-                <img src="../img/chat.png" alt="default-scr-img">
-            </div>
-            <div class="chat-screen" id="chat-screen">CHAT SCREEN</div>
+    </div>
+    <div class="chat-divider" id="chat-divider"></div>
+    <div class="chat-container" id="chat">
+        <div class="def-screen" id="def-screen">
+            <img src="../img/chat.png" alt="default-scr-img">
         </div>
-    </body>
+        <div class="chat-screen" id="chat-screen">CHAT SCREEN</div>
+    </div>
+
+</body>
+
 </html>

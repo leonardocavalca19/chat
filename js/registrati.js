@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
+    const tokenEsistente = localStorage.getItem('chatToken');
+    if (tokenEsistente) {
+        window.location.replace('/public/chat.html');
+        return;
+    }
     document.getElementById('btnregistrati').addEventListener('click', (e) => {
         e.preventDefault();
         const telefono = document.getElementById('telefono').value;
@@ -17,9 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('error').textContent = 'Password non valida.';
             return;
         }
-        socket.emit('register', { telefono, nome, password });
+        socket.emit('register', { telefono, nome, password});
     });
-    socket.on('register-success', () => {
+    socket.on('register-success', (data) => {
+        localStorage.setItem('chatToken', data.token);
         window.location.replace('/public/chat.html');
     });
     socket.on('auth-error', (messaggioErrore) => {
