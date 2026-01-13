@@ -19,25 +19,28 @@ document.addEventListener("DOMContentLoaded", ()=>{
     const chat_default = document.getElementById("def-screen");
     chat_screen.style.display = "none";
     
-    /* Controllo click delle chat */
+    /* Controllo click delle chat (event delegation) */
     const div = document.getElementById("chat-items-container");
     div.addEventListener("click", (event)=>{
         const chat_item = event.target.closest(".chat-item");
         if(!chat_item) return;
+        console.log(chat_item);
         const numTelefonoSelezionata = chat_item.dataset.id;
-        chat_screen.style.display = "block";
-        chat_default.style.display = "none";
-    })
+        load_chat(chat_item);
+    });
 
     /* Comando chiusura chat */
     document.addEventListener("keydown", (e)=>{
         if(e.key === "Escape")
         {
             chat_screen.style.display = "none";
+            chat_screen.innerHTML = "";
             chat_default.style.display = "flex";
             e.preventDefault();
         }
     });
+
+    socket.emit("get-contatti");
 
     /* Creazione lista contatti */
     socket.on("update-user-list", (listaUtenti) => {
@@ -59,4 +62,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
             </div>`;
         });
     });
+
+    function load_chat(data)
+    {
+        chat_screen.style.display = "block";
+        chat_default.style.display = "none";
+        chat_screen.innerHTML = "";
+        chat_screen.innerHTML += `Chat screen di ${data.dataset.nome}`
+    }
 });
