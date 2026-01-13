@@ -94,7 +94,7 @@ io.on('connection', (socket) => {
             return;
         }
         const password = await hashpassword(data.password)
-        const avatar = data.avatar || 'default.png';
+        const avatar = data.avatar || 'avatar_default.jpg';
         db.run(sql, [normalizzaTelefono(data.telefono), data.nome, avatar, password], function (err) {
             if (err) {
                 if (err.message.includes('UNIQUE')) {

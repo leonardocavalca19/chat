@@ -17,7 +17,7 @@ function creatabella() {
             telefono INTEGER PRIMARY KEY,
             nome TEXT,
             password TEXT,
-            avatar TEXT DEFAULT 'default.png',
+            avatar TEXT DEFAULT 'avatar_default.jpg',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `;
