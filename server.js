@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 const hostname = '127.0.0.1';
-const port = 2000;
+const port = 3000;
 const tipi = {
     '.html': { type: 'text/html', folder: 'public' },
     '.css': { type: 'text/css', folder: 'css' },
@@ -260,6 +260,16 @@ io.on('connection', (socket) => {
         if (mittente) {
             delete utentiOnline[socket.id];
         }
+    })
+
+    socket.on('get-contatti', ()=>{
+        db.all("SELECT * FROM users", [], (err, rows)=>{
+            if(err){
+                console.error("Errore recupero utenti:", err);
+                return;
+            }
+            socket.emit("update-user-list", rows);
+        })
     })
 
 });
