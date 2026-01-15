@@ -6,40 +6,47 @@ Il progetto combina la potenza delle **WebSocket** per la comunicazione immediat
 ## 🚀 Funzionalità Principali
 
 * **Real-time Messaging:** Scambio di messaggi istantaneo tramite Socket.io.
-* **Persistenza Dati:** Utenti e credenziali sono salvati in un database **SQLite** locale (`utenti.db`).
-* **Autenticazione Sicura:** Sistema di Registrazione e Login protetto.
-* **Gestione Utenti:** Lista utenti online aggiornata in tempo reale con notifica di connessione/disconnessione.
+* **Persistenza Dati:** Utenti e messaggi sono salvati in un database **SQLite** locale (`utenti.db`).
+* **Autenticazione Avanzata:**
+    * Registrazione e Login protetti.
+    * **Auto-Login:** Sistema basato su **Token di sessione** (salvati in `localStorage`) per mantenere l'utente connesso anche dopo aver ricaricato la pagina.
+* **Gestione Avatar:**
+    * Upload di immagini profilo personalizzate.
+    * Creazione automatica di nomi file univoci e serving statico delle immagini.
+* **Interfaccia Dinamica:**
+    * **Sidebar Ridimensionabile:** Possibilità di trascinare il bordo della lista chat per allargarla o stringerla (`resize.js`).
+    * Lista utenti online aggiornata in tempo reale.
+    * Navigazione fluida (SPA-like) tra login e chat senza ricaricamenti inutili.
 * **Design Material 3:**
-    * Supporto nativo **Light/Dark Mode** (rileva impostazioni di sistema).
-    * Input animati e feedback visivo.
+    * Input animati con feedback visivo immediato sulla forza della password.
     * Switch visibilità password (👁️).
-* **UX Avanzata:** Normalizzazione automatica dei numeri di telefono (aggiunta prefisso +39).
 
 ## 🛡️ Sicurezza e Validazione
 
-Il progetto implementa controlli rigorosi per garantire la sicurezza e l'integrità dei dati:
+Il progetto implementa standard di sicurezza industriali per proteggere utenti e server:
 
-1.  **Prevenzione SQL Injection:** Utilizzo di *Prepared Statements* (query parametrizzate con `?`) per tutte le interazioni col database.
-2.  **Validazione Password (Regex):** Obbligo di password forte (Minimo 8 caratteri, 1 Maiuscola, 1 Minuscola, 1 Numero).
-    * `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$`
-3.  **Validazione Telefono (Regex):** Controllo formato internazionale E.164.
-    * `^\+?[0-9]{8,15}$`
-4.  **Sanitizzazione Input:** Pulizia automatica di spazi e caratteri speciali nei numeri di telefono prima del salvataggio.
+1.  **Password Hashing (Bcrypt):** Le password non sono mai salvate in chiaro, ma hashate utilizzando `bcrypt` prima di essere scritte nel database.
+2.  **Protezione Brute-Force:** Il server monitora i tentativi di login falliti per IP. Dopo **5 tentativi errati**, l'IP viene bloccato temporaneamente per **15 minuti**.
+3.  **Prevenzione XSS (Cross-Site Scripting):** Tutti i messaggi vengono sanitizzati lato server (convertendo caratteri come `<` `>` `&`) prima di essere inviati agli altri client.
+4.  **Prevenzione SQL Injection:** Utilizzo di query parametrizzate per tutte le interazioni col database.
+5.  **Validazione Rigorosa:**
+    * **Password:** Regex complessa (Min 8 char, Maiuscola, Minuscola, Numero, Speciale) con feedback visuale in tempo reale.
+    * **Telefono:** Controllo formato internazionale standard.
 
 ## 🛠️ Tecnologie Utilizzate
 
-Il progetto è sviluppato "da zero" privilegiando moduli nativi:
+Il progetto è sviluppato privilegiando moduli nativi e librerie essenziali:
 
-* **Backend:** Node.js (Modulo nativo `http` e `fs`)
+* **Backend:** Node.js (Moduli `http`, `fs`, `path`, `crypto`)
 * **Real-time Engine:** Socket.io
-* **Database:** SQLite3 (Serverless & Portable)
-* **Frontend:** HTML5, CSS3 (Variables & Flexbox), Vanilla JS
+* **Database:** SQLite3
+* **Sicurezza:** Bcrypt (per hashing password)
+* **Frontend:** HTML5, CSS3, Vanilla JS
 * **Design System:** Google Material Design 3
-* **Icone:** Google Material Symbols Outlined
 
 ## 📦 Installazione e Avvio
 
-Il progetto è **totalmente portabile**. Il database si autogenera al primo avvio.
+Il progetto è **totalmente portabile**. Il database e le cartelle necessarie si autogenerano al primo avvio.
 
 1.  **Clona la repository** (o scarica la cartella):
     ```bash
@@ -48,7 +55,6 @@ Il progetto è **totalmente portabile**. Il database si autogenera al primo avvi
     ```
 
 2.  **Installa le dipendenze:**
-    Verranno installati `socket.io` e `sqlite3`.
     ```bash
     npm install
     ```
@@ -66,10 +72,12 @@ Il progetto è **totalmente portabile**. Il database si autogenera al primo avvi
 
 ```text
 /
-├── database.js     # Gestione connessione SQLite e auto-creazione tabelle
-├── server.js       # Server HTTP e Logica WebSocket
-├── utenti.db       # File del database (generato automaticamente)
-├── public/         # Frontend (HTML)
-├── css/            # Fogli di stile (Theme + Layout)
-├── js/             # Logica Client (Login + Chat)
+├── database.js     # Connessione SQLite e creazione tabelle
+├── server.js       # Server HTTP, WebSocket, Logica Auth e Upload
+├── utenti.db       # Database (generato automaticamente)
+├── public/         # Pagine HTML (Login, Registrazione, Chat)
+├── css/            # Fogli di stile
+├── js/             # Logica Client (Login, Chat, Resize, Registrazione)
+├── img/            # Cartella immagini statiche
+│   └── avatars/    # Upload degli avatar utenti
 └── package.json    # Gestione dipendenze
