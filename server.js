@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
                 const token = crypto.randomBytes(16).toString('hex');
                 const nuovoUtente = {
                     telefono: normalizzaTelefono(data.telefono),
-                    nickname: data.nome,
+                    nome: data.nome,
                     avatar: avatar
                 };
                 sessioni[token] = nuovoUtente;
@@ -118,7 +118,7 @@ io.on('connection', (socket) => {
                 socket.emit('register-success', {
                     token: token,
                     telefono: nuovoUtente.telefono,
-                    nickname: nuovoUtente.nickname,
+                    nome: nuovoUtente.nome,
                     avatar: nuovoUtente.avatar
                 });
                 aggiornalista();
@@ -166,12 +166,12 @@ io.on('connection', (socket) => {
                     sessioni[token] = row;
                     utentiOnline[socket.id] = {
                         telefono: row.telefono,
-                        nickname: row.nickname,
+                        nome: row.nome,
                         avatar: row.avatar
                     };
                     socket.emit('login-success', {
                         telefono: row.telefono,
-                        nickname: row.nickname,
+                        nome: row.nome,
                         avatar: row.avatar,
                         token: token
                     });
@@ -198,7 +198,7 @@ io.on('connection', (socket) => {
         if (utente) {
             utentiOnline[socket.id] = {
                 telefono: utente.telefono,
-                nickname: utente.nickname,
+                nome: utente.nome,
                 avatar: utente.avatar
             };
             
@@ -283,7 +283,7 @@ function aggiornalista() {
         }
         const listaPerClient = rows.map(row => ({
             telefono: row.telefono,
-            nickname: row.nome,
+            nome: row.nome,
             avatar: row.avatar
         }));
         io.emit('update-user-list', listaPerClient);
