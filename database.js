@@ -14,7 +14,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 function creatabella() {
     const sql = `
         CREATE TABLE IF NOT EXISTS users (
-            telefono INTEGER PRIMARY KEY,
+            telefono TEXT PRIMARY KEY,
             nome TEXT,
             password TEXT,
             avatar TEXT DEFAULT 'avatar_default.jpg',
