@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", ()=>{
+document.addEventListener("DOMContentLoaded", () => {
     const socket = io();
     let mioTelefono = null;
     const token = localStorage.getItem('chatToken');
@@ -13,26 +13,25 @@ document.addEventListener("DOMContentLoaded", ()=>{
     });
     socket.on('auth-success', (userData) => {
         mioTelefono = userData.telefono;
-        socket.emit('get-user-list');
+        socket.emit('get-contatti');
     });
     const chat_screen = document.getElementById("chat-screen");
     const chat_default = document.getElementById("def-screen");
     chat_screen.style.display = "none";
-    
+
     /* Controllo click delle chat (event delegation) */
     const div = document.getElementById("chat-items-container");
-    div.addEventListener("click", (event)=>{
+    div.addEventListener("click", (event) => {
         const chat_item = event.target.closest(".chat-item");
-        if(!chat_item) return;
+        if (!chat_item) return;
         console.log(chat_item);
         const numTelefonoSelezionata = chat_item.dataset.id;
         load_chat(chat_item);
     });
 
     /* Comando chiusura chat */
-    document.addEventListener("keydown", (e)=>{
-        if(e.key === "Escape")
-        {
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
             chat_screen.style.display = "none";
             chat_screen.innerHTML = "";
             chat_default.style.display = "flex";
@@ -40,15 +39,15 @@ document.addEventListener("DOMContentLoaded", ()=>{
         }
     });
 
-    socket.emit("get-contatti");
+
 
     /* Creazione lista contatti */
     socket.on("update-user-list", (listaUtenti) => {
-        if(!div) return;
-        div.innerHTML = ""; 
+        if (!div) return;
+        div.innerHTML = "";
 
         listaUtenti.forEach(utente => {
-            if (utente.telefono === mioTelefono) return; 
+            if (utente.telefono === mioTelefono) return;
             const avatarSrc = utente.avatar ? `/${utente.avatar}` : '/avatar_default.jpg';
             div.innerHTML += `
             <div class="chat-item" data-id="${utente.telefono}" data-nome="${utente.nome}">
@@ -61,8 +60,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
         });
     });
 
-    function load_chat(data)
-    {
+    function load_chat(data) {
         chat_screen.style.display = "block";
         chat_default.style.display = "none";
         chat_screen.innerHTML = "";
