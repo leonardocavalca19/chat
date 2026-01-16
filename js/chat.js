@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Creazione lista contatti */
     socket.on("update-user-list", (listaUtenti) => {
         if (!div) return;
+        if (mioTelefono === null) {
+            console.log("Autenticazione non ancora completata, aspetto a disegnare la lista...");
+            return;
+        }
         div.innerHTML = "";
 
         listaUtenti.forEach(utente => {
