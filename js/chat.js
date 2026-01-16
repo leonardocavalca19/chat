@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         div.innerHTML = "";
 
         listaUtenti.forEach(utente => {
-            if (utente.telefono === mioTelefono) return;
+            if (String(utente.telefono) === String(mioTelefono)) return;
             const avatarSrc = utente.avatar ? `/${utente.avatar}` : '/avatar_default.jpg';
             div.innerHTML += `
             <div class="chat-item" data-id="${utente.telefono}" data-nome="${utente.nome}">
