@@ -27,13 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
         chat_item = event.target.closest(".chat-item");
         if (!chat_item) return;
         load_chat(chat_item);
+        document.body.classList.add("mobile-chat-open");
     });
-
+    const btnBack = document.getElementById("btn-back");
+    if (btnBack) {
+        btnBack.addEventListener("click", () => {
+            document.body.classList.remove("mobile-chat-open");
+        });
+    }
     /* Comando chiusura chat */
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             chat_screen.style.display = "none";
-            document.getElementById("chat-messages-zone").innerHTML  = "";
+            document.getElementById("chat-messages-zone").innerHTML = "";
             chat_default.style.display = "flex";
             e.preventDefault();
         }
@@ -47,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         div.innerHTML = "";
-        
+
         listaUtenti.forEach(utente => {
             if (String(utente.telefono) === String(mioTelefono)) return;
             const avatarSrc = utente.avatar ? `/${utente.avatar}` : '/avatar_default.jpg';
@@ -62,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    
+
     function load_chat(data) {
         let imgSrc = data.querySelector(".profile-pic").src
         const avatarSrc = imgSrc ? `/${imgSrc}` : '/avatar_default.jpg';
@@ -80,37 +86,37 @@ document.addEventListener("DOMContentLoaded", () => {
         <button class="send">S</button>
         </div>`;*/
     }
-    
-    socket.on("recv-message", (data)=>{
+
+    socket.on("recv-message", (data) => {
         console.log("Sended");
-        document.getElementById("chat-messages-zone").innerHTML += 
-        `<div class="messaggio-container-l">
+        document.getElementById("chat-messages-zone").innerHTML +=
+            `<div class="messaggio-container-l">
             <div class="messaggio-recvd">
                 <p>${data[0]}</p>
             </div>
         </div>`
     });
 
-    document.querySelector(".send").addEventListener("click", ()=>{
-        if(document.querySelector(".text-area").value === "") return;
+    document.querySelector(".send").addEventListener("click", () => {
+        if (document.querySelector(".text-area").value === "") return;
         let message = document.querySelector(".text-area").value;
         let dest = chat_item.dataset.id;
-        socket.emit("send-message", {messaggio: message, destinatario: dest});
-        document.getElementById("chat-messages-zone").innerHTML += 
-        `<div class="messaggio-container-r">
+        socket.emit("send-message", { messaggio: message, destinatario: dest });
+        document.getElementById("chat-messages-zone").innerHTML +=
+            `<div class="messaggio-container-r">
             <div class="messaggio-sended">
                 <p>${message}</p>
             </div>
         </div>`
         document.querySelector(".text-area").value = "";
     })
-    document.querySelector(".text-area").addEventListener("keydown", (e)=>{
-        if(e.key === "Enter"){
+    document.querySelector(".text-area").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
             e.preventDefault();
             document.querySelector(".send").click();
         }
     });
-    document.getElementById("btn-logout").addEventListener("click", ()=>{
+    document.getElementById("btn-logout").addEventListener("click", () => {
         localStorage.removeItem('chatToken');
         window.location.replace('/');
     });

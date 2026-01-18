@@ -7,7 +7,7 @@ const db = require('./database');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
-const hostname = '0.0.0.0';
+const hostname = '127.0.0.1';
 const port = 5000;
 const tipi = {
     '.html': { type: 'text/html', folder: 'public' },
