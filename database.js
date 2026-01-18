@@ -12,7 +12,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 function creatabella() {
-    const sql = `
+    const sqlUsers = `
         CREATE TABLE IF NOT EXISTS users (
             telefono TEXT PRIMARY KEY,
             nome TEXT,
@@ -21,9 +21,21 @@ function creatabella() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `;
-    
-    db.run(sql, (err) => {
-        if (err) console.error("Errore creazione tabella:", err.message);
+    const sqlMessages = `
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            mittente TEXT NOT NULL,
+            destinatario TEXT NOT NULL,
+            testo TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (mittente) REFERENCES users(telefono),
+            FOREIGN KEY (destinatario) REFERENCES users(telefono)
+        )
+    `;
+
+    db.serialize(()=>{
+        db.run(sqlUsers, (err)=>{ if(err){ console.error("Errore creazione tabella:", err.message); } });
+        db.run(sqlMessages, (err)=>{ if(err){ console.error("Errore creazione tabella:", err.message); } });
     });
 }
 

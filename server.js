@@ -263,14 +263,53 @@ io.on('connection', (socket) => {
     })
 
     socket.on('get-contatti', ()=>{
-        db.all("SELECT * FROM users", [], (err, rows)=>{
-            if(err){
-                console.error("Errore recupero utenti:", err);
-                return;
-            }
-            socket.emit("update-user-list", rows);
+        db.all("SELECT * FROM users", [], (err, row)=>{
+            if(err)
+                {
+                    console.error("Errore recupero utenti:", err);
+                    return;
+                }
+            socket.emit("update-user-list", row);
         })
     })
+
+    socket.on("send-message", (data)=>{
+        const sql = `
+            INSERT INTO messages (mittente, destinatario, testo)
+            VALUES (?, ?, ?)
+        `;
+        db.run(sql, [data.mittente, data.destinatario, data.messaggio], function(err){
+            if(err) { console.error(err); return; }
+            const msg = {
+                id: this.lastID,
+                mittente: data.mittente,
+                destinatario: data.destinatario,
+                testo: data.messaggio,
+                created_at: new Date()
+            };
+            //socket.emit("recv-message", msg);
+            Object.entries(utentiOnline).forEach((utente)=>{
+                if(utente[1].telefono === data.destinatario) socket.to(utente[0]).emit("recv-message", msg);
+            });
+        });
+    });
+
+    socket.on("ottieni-messaggi", (data)=>{
+        const sql = `
+            SELECT *
+            FROM messages
+            WHERE (mittente = ? AND destinatario = ?) OR (mittente = ? AND destinatario = ?)
+            ORDER BY created_at ASC
+        `;
+        db.all(sql, [data.mittente, data.destinatario, data.destinatario, data.mittente], (err, row)=>{
+            if(err)
+            {
+                console.error("Errore recupero messaggi: ", err);
+                return;
+            }
+            socket.emit("carica-messaggi", (row));
+        });
+    });
 
 });
 function aggiornalista() {
@@ -303,8 +342,4 @@ function puliziamessaggio(text) {
     if (!text) return text;
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
-server.listen(port, hostname, function () {
-
-    console.log(`Server running at http://${hostname}:${port}/`);
-
-});
+server.listen(port, hostname, function () { console.log(`Server running at http://${hostname}:${port}/`); });

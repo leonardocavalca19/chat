@@ -74,40 +74,46 @@ document.addEventListener("DOMContentLoaded", () => {
         const avatarSrc = imgSrc ? `/${imgSrc}` : '/avatar_default.jpg';
         document.getElementById("nome-cont").innerText = data.dataset.nome;
         document.getElementById("profile-pic").src = avatarSrc;
+        socket.emit("ottieni-messaggi", ({mittente: mioTelefono, destinatario: data.dataset.id}));
         chat_screen.style.display = "block";
         chat_default.style.display = "none";
-        /*chat_screen.innerHTML = `
-        <div class="chat-top-zone">
-        <div class="chat-avatar"><img class="profile-pic" src="${avatarSrc}" onerror="this.src='/avatar_default.jpg'"></div>
-        <p class="chat-name">${data.dataset.nome}</p>
-        </div>
-        <div class="chat-writer-zone">
-        <input class="text-area" type="text" placeholder="Scrivi un messaggio">
-        <button class="send">S</button>
-        </div>`;*/
     }
-
-    socket.on("recv-message", (data) => {
-        console.log("Sended");
-        document.getElementById("chat-messages-zone").innerHTML +=
-            `<div class="messaggio-container-l">
-            <div class="messaggio-recvd">
-                <p>${data[0]}</p>
+    
+    socket.on("recv-message", (msg)=>{
+        const div = document.getElementById("chat-messages-zone");
+        div.innerHTML += `
+        <div class="${msg.mittente === mioTelefono ? "messaggio-container-r" : "messaggio-container-l"}">
+            <div class="${msg.mittente === mioTelefono ? "messaggio-sended" : "messaggio-recvd"}">
+                <p>${msg.testo}</p>
             </div>
-        </div>`
+        </div>`;
+    });
+
+    socket.on("carica-messaggi", (messaggi)=>{
+        const divMessaggi = document.getElementById("chat-messages-zone");
+        divMessaggi.innerHTML = "";
+        messaggi.forEach(messaggio=>{
+            divMessaggi.innerHTML += `
+            <div class="${messaggio.mittente === mioTelefono ? "messaggio-container-r" : "messaggio-container-l"}">
+                <div class="${messaggio.mittente === mioTelefono ? "messaggio-sended" : "messaggio-recvd"}">
+                    <p>${messaggio.testo}</p>
+                </div>
+            </div>
+            `;
+        });
     });
 
     document.querySelector(".send").addEventListener("click", () => {
         if (document.querySelector(".text-area").value === "") return;
         let message = document.querySelector(".text-area").value;
         let dest = chat_item.dataset.id;
-        socket.emit("send-message", { messaggio: message, destinatario: dest });
-        document.getElementById("chat-messages-zone").innerHTML +=
-            `<div class="messaggio-container-r">
+        socket.emit("send-message", {mittente: mioTelefono, destinatario: dest, messaggio: message});
+        document.getElementById("chat-messages-zone").innerHTML += 
+        `<div class="messaggio-container-r">
             <div class="messaggio-sended">
                 <p>${message}</p>
             </div>
-        </div>`
+        </div>`;
         document.querySelector(".text-area").value = "";
     })
     document.querySelector(".text-area").addEventListener("keydown", (e) => {
