@@ -1,7 +1,10 @@
 @media screen and (max-width: 770px) {
+
+
     body#chat-container {
         display: block;
         position: relative;
+        overflow: hidden;
     }
 
     .chat-list-container,
@@ -9,33 +12,10 @@
         width: 100% !important;
         max-width: none !important;
         height: 100vh;
+        height: 100dvh;
         border-right: none;
         z-index: 1;
         display: flex;
-        flex-direction: column;
-    }
-
-    #chat {
-        display: none;
-        width: 100% !important;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 999;
-        background-color: var(--md-sys-color-background);
-    }
-    div.chat-top-zone{
-        display: flex;
-        align-items: center;
-    }
-    p.chat-name{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    body.mobile-chat-open #chat {
-        display: flex !important;
         flex-direction: column;
     }
 
@@ -43,28 +23,62 @@
         display: none !important;
     }
 
+    #chat {
+        display: none;
+        width: 100% !important;
+        height: 100vh;
+        height: 100dvh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        background-color: var(--md-sys-color-background);
+        flex-direction: column;
+    }
+
+    body.mobile-chat-open #chat {
+        display: flex !important;
+    }
+
     #chat-divider {
         display: none !important;
     }
 
+    .chat-top-zone {
+        flex-shrink: 0;
+        position: relative;
+        width: 100%;
+    }
+
+    .chat-messages-zone {
+        flex-grow: 1;
+        position: relative;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        width: 100%;
+        overflow-y: auto;
+        padding-bottom: 10px;
+    }
+
     .chat-writer-zone {
+        flex-shrink: 0;
+        position: relative;
+        bottom: auto;
+        left: auto;
+
         display: grid !important;
         grid-template-columns: 1fr 48px !important;
         gap: 10px !important;
         align-items: center;
 
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
         width: 100% !important;
-        box-sizing: border-box;
-
-        z-index: 1000;
         padding: 10px;
-        padding-bottom: 20px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
         background-color: var(--md-sys-color-surface-container-high);
         border-top: 1px solid var(--md-sys-color-outline-variant);
+        z-index: 1000;
     }
 
     .text-area {
@@ -85,18 +99,13 @@
         display: block !important;
     }
 
-    .chat-messages-zone {
-        padding-bottom: 90px;
-    }
-
     div.messaggio-sended,
     div.messaggio-recvd {
         max-width: 85%;
     }
 
     .sidebar-bottom {
-        padding: 20px;
-        padding-bottom: 30px;
+        padding: 20px 20px 30px 20px;
     }
 
     .btn-sidebar {
@@ -488,6 +497,13 @@ div.messaggio-recvd p {
 div.messaggio-sended {
     background-color: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
+    position: relative;
+    max-width: 85%;
+    padding: 8px 12px;
+    font-size: 15px;
+    line-height: 1.4;
+    border-radius: 12px;
+    box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); 
     border-top-right-radius: 0;
 }
 
@@ -503,8 +519,15 @@ div.messaggio-sended::before {
 }
 
 div.messaggio-recvd {
-    background-color: var(--md-sys-color-surface-container-high);
-    color: var(--md-sys-color-on-surface);
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    position: relative;
+    max-width: 85%;
+    padding: 8px 12px;
+    font-size: 15px;
+    line-height: 1.4;
+    border-radius: 12px;
+    box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
     border-top-left-radius: 0;
 }
 
@@ -515,6 +538,6 @@ div.messaggio-recvd::before {
     left: -8px;
     width: 0;
     height: 0;
-    border-top: 10px solid var(--md-sys-color-surface-container-high);
+    border-top: 10px solid var(--md-sys-color-secondary-container);
     border-left: 10px solid transparent;
 }
