@@ -104,4 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>`
         document.querySelector(".text-area").value = "";
     })
+    document.querySelector(".text-area").addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+            e.preventDefault();
+            document.querySelector(".send").click();
+        }
+    });
+    document.getElementById("btn-logout").addEventListener("click", ()=>{
+        localStorage.removeItem('chatToken');
+        window.location.replace('/');
+    });
 });

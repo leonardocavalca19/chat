@@ -264,22 +264,13 @@ io.on('connection', (socket) => {
 
     socket.on('get-contatti', ()=>{
         db.all("SELECT * FROM users", [], (err, rows)=>{
-            if(err)
-                {
-                    console.error("Errore recupero utenti:", err);
-                    return;
-                }
+            if(err){
+                console.error("Errore recupero utenti:", err);
+                return;
+            }
             socket.emit("update-user-list", rows);
         })
     })
-
-    socket.on("send-message", (data)=>{
-        let message = data.messaggio;
-        let dest = data.destinatario;
-        Object.entries(utentiOnline).forEach((utente)=>{
-            if(utente[1].telefono === dest) socket.to(utente[0]).emit("recv-message", ([message, dest]));
-        });
-    });
 
 });
 function aggiornalista() {
