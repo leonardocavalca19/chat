@@ -243,18 +243,6 @@ io.on('connection', (socket) => {
             });
         });
     });
-
-    socket.on('chat-message', (messaggio) => {
-        const mittente = utentiOnline[socket.id];
-        if (!mittente) return;
-        if (!messaggio) return;
-        if (typeof messaggio !== 'string') return;
-        messaggio = puliziamessaggio(messaggio);
-        if (mittente && messaggio.trim().length > 0 && messaggio.length <= 500) {
-            io.emit('chat-message', { user: mittente, text: messaggio });
-        }
-    });
-
     socket.on('disconnect', () => {
         const mittente = utentiOnline[socket.id];
         if (mittente) {
