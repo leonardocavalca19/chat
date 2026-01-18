@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrati - WhatsNode</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/registrati.css">
+<script src="/js/registrati.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<body>
+    <div class="login-container">
+        <h1>Registrati a WhatsNode</h1>
+        <form>
+            <p id="error"></p>
+            <label for="telefono">Telefono:</label>
+            <div class="input-group">
+                <input type="text" id="telefono" name="telefono" placeholder="Inserisci telefono">
+            </div>
+            <label for="nome">Nome utente:</label>
+            <div class="input-group">
+                <input type="text" id="nome" name="nome" placeholder="Inserisci nome utente">
+            </div>
+            <label for="password">Password:</label>
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="Inserisci password">
+                <span class="material-symbols-outlined toggle-password" id="toggle-btn">
+                    visibility
+                </span>
+            </div>
+            <div id="requisiti">
+                <p>Password deve contenere:</p>
+                <ul>
+                    <li id="lunghezza">Almeno 8 caratteri</li>
+                    <li id="maiuscola">Almeno una lettera maiuscola</li>
+                    <li id="minuscola">Almeno una lettera minuscola</li>
+                    <li id="numero">Almeno un numero</li>
+                    <li id="speciale">Almeno un carattere speciale (!@#$%^&*)</li>
+                </ul>
+            </div>
+            <button type="submit" id="btnregistrati">Registrati</button>
+        </form>
+    </div>
+</body>
+</html>
