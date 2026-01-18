@@ -201,7 +201,7 @@ io.on('connection', (socket) => {
                 nome: utente.nome,
                 avatar: utente.avatar
             };
-            
+
             socket.emit('auth-success', utente);
             console.log(`Utente riconnesso con token: ${utente.telefono}`);
         } else {
@@ -262,24 +262,46 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('get-contatti', ()=>{
-        db.all("SELECT * FROM users", [], (err, row)=>{
-            if(err)
-                {
-                    console.error("Errore recupero utenti:", err);
-                    return;
-                }
-            socket.emit("update-user-list", row);
+    socket.on('get-contatti', () => {
+        const mioUtente = utentiOnline[socket.id];
+        if (!mioUtente) return;
+        const mioNumero = mioUtente.telefono;
+        db.all("SELECT * FROM users", [], async (err, row) => {
+            if (err) {
+                console.error("Errore recupero utenti:", err);
+                return;
+            }
+            const usersWithMessages = await Promise.all(row.map(async (user) => {
+                return new Promise((resolve, reject) => {
+                    const sqlMsg = `
+                        SELECT testo FROM messages 
+                        WHERE (mittente = ? AND destinatario = ?) 
+                           OR (mittente = ? AND destinatario = ?)
+                        ORDER BY id DESC 
+                        LIMIT 1
+                    `;
+
+                    db.get(sqlMsg, [mioNumero, user.telefono, user.telefono, mioNumero], (err, row) => {
+                        if (err) {
+                            user.ultimoMessaggio = "";
+                        } else {
+                            user.ultimoMessaggio = row ? row.testo : "";
+                        }
+                        resolve(user);
+                    });
+                });
+            }))
+            socket.emit("update-user-list", usersWithMessages);
         })
     })
 
-    socket.on("send-message", (data)=>{
+    socket.on("send-message", (data) => {
         const sql = `
             INSERT INTO messages (mittente, destinatario, testo)
             VALUES (?, ?, ?)
         `;
-        db.run(sql, [data.mittente, data.destinatario, data.messaggio], function(err){
-            if(err) { console.error(err); return; }
+        db.run(sql, [data.mittente, data.destinatario, data.messaggio], function (err) {
+            if (err) { console.error(err); return; }
             const msg = {
                 id: this.lastID,
                 mittente: data.mittente,
@@ -288,22 +310,21 @@ io.on('connection', (socket) => {
                 created_at: new Date()
             };
             //socket.emit("recv-message", msg);
-            Object.entries(utentiOnline).forEach((utente)=>{
-                if(utente[1].telefono === data.destinatario) socket.to(utente[0]).emit("recv-message", msg);
+            Object.entries(utentiOnline).forEach((utente) => {
+                if (utente[1].telefono === data.destinatario) socket.to(utente[0]).emit("recv-message", msg);
             });
         });
     });
 
-    socket.on("ottieni-messaggi", (data)=>{
+    socket.on("ottieni-messaggi", (data) => {
         const sql = `
             SELECT *
             FROM messages
             WHERE (mittente = ? AND destinatario = ?) OR (mittente = ? AND destinatario = ?)
             ORDER BY created_at ASC
         `;
-        db.all(sql, [data.mittente, data.destinatario, data.destinatario, data.mittente], (err, row)=>{
-            if(err)
-            {
+        db.all(sql, [data.mittente, data.destinatario, data.destinatario, data.mittente], (err, row) => {
+            if (err) {
                 console.error("Errore recupero messaggi: ", err);
                 return;
             }
@@ -314,7 +335,7 @@ io.on('connection', (socket) => {
 });
 function aggiornalista() {
     const sql = "SELECT telefono, nome, avatar FROM users";
-    
+
     db.all(sql, [], (err, rows) => {
         if (err) {
             console.error("Errore recupero utenti:", err);

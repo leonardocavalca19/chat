@@ -52,34 +52,70 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Autenticazione non ancora completata, aspetto a disegnare la lista...");
             return;
         }
-        div.innerHTML = "";
+        let idChatAperta = null;
+        if (chat_item) {
+            idChatAperta = chat_item.dataset.id;
+        }
 
         listaUtenti.forEach(utente => {
             if (String(utente.telefono) === String(mioTelefono)) return;
-            const avatarSrc = utente.avatar ? `/${utente.avatar}` : '/avatar_default.jpg';
-            div.innerHTML += `
+            let nomeFile = utente.avatar;
+            if (nomeFile) {
+                nomeFile = nomeFile.replace(/^public[\\/]/, '');
+            }
+            let anteprima = utente.ultimoMessaggio || "Tocca per chattare";
+            const avatarSrc = nomeFile ? `/${nomeFile}` : '/avatar_default.jpg';
+            let elementoEsistente = div.querySelector(`.chat-item[data-id="${utente.telefono}"]`);
+            if (elementoEsistente) {
+                const pMsg = elementoEsistente.querySelector(".chat-item-texts .chat-message");
+                if (pMsg.innerText !== anteprima) {
+                    pMsg.innerText = anteprima;
+                }
+                const imgTag = elementoEsistente.querySelector(".profile-pic");
+                if (!imgTag.src.endsWith(avatarSrc)) {
+                    imgTag.src = avatarSrc;
+                }
+            }
+            else {
+
+                div.innerHTML += `
             <div class="chat-item" data-id="${utente.telefono}" data-nome="${utente.nome}">
             <div class="chat-avatar"><img class="profile-pic" src="${avatarSrc}" onerror="this.src='/avatar_default.jpg'"></div>
             <div class="chat-item-texts">
             <p class="chat-name">${utente.nome}</p>
-            <p class="chat-message"></p>
+            <p class="chat-message">${anteprima}</p>
             </div>
             </div>`;
+            }
+            if (idChatAperta && String(utente.telefono) === String(idChatAperta)) {
+                const headerImg = document.getElementById("profile-pic");
+                const headerName = document.getElementById("nome-cont");
+                if (headerImg) {
+                    headerImg.src = avatarSrc;
+                }
+                if (headerName) {
+                    headerName.innerText = utente.nome;
+                }
+            }
+
         });
+        if (idChatAperta) {
+            chat_item = div.querySelector(`.chat-item[data-id="${idChatAperta}"]`);
+        }
     });
 
 
     function load_chat(data) {
-        let imgSrc = data.querySelector(".profile-pic").src
-        const avatarSrc = imgSrc ? `/${imgSrc}` : '/avatar_default.jpg';
+        let imgSrc = data.querySelector(".profile-pic").getAttribute("src");
+        const avatarSrc = imgSrc ? `${imgSrc}` : '/avatar_default.jpg';
         document.getElementById("nome-cont").innerText = data.dataset.nome;
         document.getElementById("profile-pic").src = avatarSrc;
-        socket.emit("ottieni-messaggi", ({mittente: mioTelefono, destinatario: data.dataset.id}));
+        socket.emit("ottieni-messaggi", ({ mittente: mioTelefono, destinatario: data.dataset.id }));
         chat_screen.style.display = "block";
         chat_default.style.display = "none";
     }
-    
-    socket.on("recv-message", (msg)=>{
+
+    socket.on("recv-message", (msg) => {
         const div = document.getElementById("chat-messages-zone");
         div.innerHTML += `
         <div class="${msg.mittente === mioTelefono ? "messaggio-container-r" : "messaggio-container-l"}">
@@ -87,12 +123,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p>${msg.testo}</p>
             </div>
         </div>`;
+        const itemMittente = document.getElementById("chat-items-container").querySelector(`.chat-item[data-id="${msg.mittente}"]`);
+        if (itemMittente) {
+            let anteprima = msg.testo;
+            itemMittente.querySelector(".chat-message").innerText = anteprima;
+        }
     });
 
-    socket.on("carica-messaggi", (messaggi)=>{
+    socket.on("carica-messaggi", (messaggi) => {
         const divMessaggi = document.getElementById("chat-messages-zone");
         divMessaggi.innerHTML = "";
-        messaggi.forEach(messaggio=>{
+        messaggi.forEach(messaggio => {
             divMessaggi.innerHTML += `
             <div class="${messaggio.mittente === mioTelefono ? "messaggio-container-r" : "messaggio-container-l"}">
                 <div class="${messaggio.mittente === mioTelefono ? "messaggio-sended" : "messaggio-recvd"}">
@@ -107,13 +148,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (document.querySelector(".text-area").value === "") return;
         let message = document.querySelector(".text-area").value;
         let dest = chat_item.dataset.id;
-        socket.emit("send-message", {mittente: mioTelefono, destinatario: dest, messaggio: message});
-        document.getElementById("chat-messages-zone").innerHTML += 
-        `<div class="messaggio-container-r">
+        socket.emit("send-message", { mittente: mioTelefono, destinatario: dest, messaggio: message });
+        document.getElementById("chat-messages-zone").innerHTML +=
+            `<div class="messaggio-container-r">
             <div class="messaggio-sended">
                 <p>${message}</p>
             </div>
         </div>`;
+        if (chat_item) {
+            let anteprima = message;
+            chat_item.querySelector(".chat-message").innerText = anteprima;
+        }
         document.querySelector(".text-area").value = "";
     })
     document.querySelector(".text-area").addEventListener("keydown", (e) => {
