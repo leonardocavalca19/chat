@@ -212,11 +212,9 @@
             window.location.href = '/';
         }
         socket.on('auth-success', (user) => {
-            document.getElementById('risposta').innerHTML = '';
         });
 
         socket.on('auth-error', (msg) => {
-            document.getElementById('risposta').innerHTML = '<p style="color: var(--md-sys-color-error);">Errore di autenticazione: ' + msg + '</p>';
             window.location.href = '/';
         });
         fileInput.addEventListener('change', function (e) {
