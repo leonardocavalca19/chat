@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     socket.on('auth-success', (userData) => {
         mioTelefono = userData.telefono;
-        document.body.style.display = 'block';
         socket.emit('get-contatti');
     });
     const chat_screen = document.getElementById("chat-screen");
@@ -108,12 +107,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     function load_chat(data) {
+        console.log("Loading chat for:", data.dataset.nome);
         let imgSrc = data.querySelector(".profile-pic").getAttribute("src");
         const avatarSrc = imgSrc ? `${imgSrc}` : '/avatar_default.jpg';
         document.getElementById("nome-cont").innerText = data.dataset.nome;
         document.getElementById("profile-pic").src = avatarSrc;
         socket.emit("ottieni-messaggi", ({ mittente: mioTelefono, destinatario: data.dataset.id }));
-        chat_screen.style.display = "block";
+        chat_screen.style.display = "flex";
+        chat_screen.style.flexDirection = "column";
         chat_default.style.display = "none";
     }
 
