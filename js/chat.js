@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.querySelector(".send").addEventListener("click", () => {
-        if (document.querySelector(".text-area").value === "") return;
+        if (document.querySelector(".text-area").value.trim() === "") return;
         let message = document.querySelector(".text-area").value;
         let dest = chat_item.dataset.id;
         socket.emit("send-message", { mittente: mioTelefono, destinatario: dest, messaggio: message });
