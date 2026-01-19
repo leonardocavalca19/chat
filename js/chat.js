@@ -9,10 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     socket.on('auth-error', (msg) => {
         localStorage.removeItem('chatToken');
+        document.body.style.display = 'none';
         window.location.href = '/';
     });
     socket.on('auth-success', (userData) => {
         mioTelefono = userData.telefono;
+        document.body.style.display = 'block';
         socket.emit('get-contatti');
     });
     const chat_screen = document.getElementById("chat-screen");
