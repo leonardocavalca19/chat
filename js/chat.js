@@ -119,13 +119,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     socket.on("recv-message", (msg) => {
-        const div = document.getElementById("chat-messages-zone");
-        div.innerHTML += `
+        if (chat_item && String(chat_item.dataset.id) === String(msg.mittente)) {
+            const div = document.getElementById("chat-messages-zone");
+            div.innerHTML += `
         <div class="${msg.mittente === mioTelefono ? "messaggio-container-r" : "messaggio-container-l"}">
             <div class="${msg.mittente === mioTelefono ? "messaggio-sended" : "messaggio-recvd"}">
                 <p>${msg.testo}</p>
             </div>
         </div>`;
+        }
         const itemMittente = document.getElementById("chat-items-container").querySelector(`.chat-item[data-id="${msg.mittente}"]`);
         if (itemMittente) {
             let anteprima = msg.testo;
